@@ -139,7 +139,7 @@ class MainCMD(cmd.Cmd):
                 try:
                     with open(self._loaded_file, 'w') as file:
                         json.dump(self._markers, file)
-                except IOError as e:
+                except Exception as e:
                     err(str(e))
 
     @require_params(1)
@@ -153,7 +153,7 @@ class MainCMD(cmd.Cmd):
         try:
             with open(arg) as file:
                 self._markers = json.load(file)
-        except IOError as e:
+        except Exception as e:
             err(str(e))
             return
 
@@ -197,4 +197,12 @@ class MainCMD(cmd.Cmd):
     # Autocompletion
     def complete_ogg(self, text, line, start_idx, end_idx):
         """Autocompletion for the ogg command."""
+        return _complete_path(text)
+
+    def complete_save(self, text, line, start_idx, end_idx):
+        """Autocompletion for the save command."""
+        return _complete_path(text)
+
+    def complete_load(self, text, line, start_idx, end_idx):
+        """Autocompletion for the load command."""
         return _complete_path(text)
