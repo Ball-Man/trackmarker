@@ -2,6 +2,7 @@ import os.path as op
 import glob as gb
 import cmd
 import readline
+import json
 
 import pyglet
 
@@ -73,6 +74,7 @@ class MainCMD(cmd.Cmd):
     prompt = '> '
 
     _loaded_track = None
+    _loaded_file = None
 
     def __init__(self, window):
         # Set readline (not available on windows)
@@ -80,6 +82,7 @@ class MainCMD(cmd.Cmd):
 
         # Associated window
         self._window = window
+        self._markers = {}
 
         # Init parent
         super().__init__()
@@ -99,7 +102,41 @@ class MainCMD(cmd.Cmd):
         """Select the current music track in memory."""
         arg = _parse_args(arg)[0]
 
-        self._loaded_track = pyglet.resource.media(arg, False)
+        try:
+            self._loaded_track = pyglet.resource.media(arg, False)
+        except Exception as e:
+            err(str(e))
+
+    @require_params(0, 1)
+    def do_save(self, arg):
+        """Save the current marker dictionary on file.
+
+        If a parameter is given, use it as path for a new file.
+        If no parameter is given, try saving in the last loaded/saved
+        file.
+        """
+        args = _parse_args(arg)
+
+        # Save to new location
+        if args:
+            try:
+                with open(args[0], 'w') as file:
+                    json.dump(self._markers, file)
+            except IOError as e:
+                err(str(e))
+                return
+
+            self._loaded_file = args[0]
+        else:
+            # Try saving in the last loaded/saved file
+            if self._loaded_file is None:
+                err('No file currently loaded, specify a filename.')
+            else:
+                try:
+                    with open(self._loaded_file, 'w') as file:
+                        json.dump(self._markers, file)
+                except IOError as e:
+                    err(str(e))
 
     # Autocompletion
     def complete_ogg(self, text, line, start_idx, end_idx):
