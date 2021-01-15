@@ -1,4 +1,5 @@
 import pyglet
+from . import cli
 
 window = None
 batch = None
