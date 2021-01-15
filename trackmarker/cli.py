@@ -104,7 +104,7 @@ class MainCMD(cmd.Cmd):
         arg = _parse_args(arg)[0]
 
         try:
-            self._track = pyglet.resource.media(arg, False)
+            self._track = pyglet.resource.media(arg)
         except Exception as e:
             err(str(e))
             return
@@ -204,6 +204,41 @@ class MainCMD(cmd.Cmd):
             return
 
         del self._markers[arg]
+
+    @require_params(0, 1)
+    def do_rec(self, arg):
+        """Start/stop recording on a channel (this start the track).
+
+        Only one channel at a time is supported. If used while the track
+        is playing, the track will be stopped.
+        """
+        args = _parse_args(arg)
+
+        if self._track is None:
+            err('No track loaded, please load one with "ogg filename"')
+            return
+
+        if args:
+            if self._window.player.playing:
+                # Stop playback
+                self._window.player.pause()
+                self._window.player.seek(0)
+                self._window.player = pyglet.media.Player()
+            else:
+                # Set marker channel
+                self.do_add(args[0])
+                self._window.channel = self._markers[args[0]]
+                # Track playback
+                self._window.player.queue(self._track)
+                self._window.player.play()
+        else:
+            if self._window.player.playing:
+                # Stop playback
+                self._window.player.pause()
+                self._window.player.seek(0)
+                self._window.player = pyglet.media.Player()
+            else:
+                err('Specify a channel name to record to.')
 
     # Autocompletion
     def complete_ogg(self, text, line, start_idx, end_idx):
