@@ -65,7 +65,7 @@ def _parse_args(arg):
 class MainCMD(cmd.Cmd):
     """Main trackl editor CLI.
 
-    Import object files (music or sounds) and tracks.
+    Import track files (music or sounds) and markers.
     """
 
     intro = ('Welcome to trackmarker.\n'

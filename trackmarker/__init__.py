@@ -1,3 +1,12 @@
+"""A tool for music timestamps.
+
+Load music tracks, and create a file populated with markers. Markers
+are timestamps, and are divided into named channels.
+
+The exported markers file (a json) can be used in games and other
+software to map actions to specific moments in the song.
+"""
+
 import pyglet
 import threading
 from . import cli
