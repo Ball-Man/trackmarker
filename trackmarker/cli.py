@@ -185,7 +185,7 @@ class MainCMD(cmd.Cmd):
 
     @require_params(1)
     def do_add(self, arg):
-        """Add a channel, specifying its name."""
+        """Add a marker channel, specifying its name."""
         arg = _parse_args(arg)[0]
 
         if arg in self._markers:
@@ -193,6 +193,17 @@ class MainCMD(cmd.Cmd):
             return
 
         self._markers[arg] = []
+
+    @require_params(1)
+    def do_del(self, arg):
+        """Delete a marker channel, specifying its name."""
+        arg = _parse_args(arg)[0]
+
+        if arg not in self._markers:
+            err(f'Channel {arg} doesn\'t exist.')
+            return
+
+        del self._markers[arg]
 
     # Autocompletion
     def complete_ogg(self, text, line, start_idx, end_idx):
