@@ -1,5 +1,7 @@
 import os.path as op
 import glob as gb
+import cmd
+import readline
 
 
 def err(string):
@@ -54,3 +56,21 @@ def _complete_path(path):
 def _parse_args(arg):
     """Split all the string arg into a list of args."""
     return arg.split()
+
+
+class MainCMD(cmd.Cmd):
+    """Main trackl editor CLI.
+
+    Import object files (music or sounds) and tracks.
+    """
+
+    intro = ('Welcome to trackmarker.\n'
+             'Type help or ? to list commands.')
+    prompt = '> '
+
+    def __init__(self):
+        # Set readline (not available on windows)
+        readline.set_completer_delims(' \t\n')
+
+        # Init parent
+        super().__init__()
