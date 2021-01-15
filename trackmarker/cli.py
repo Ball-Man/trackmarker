@@ -73,7 +73,8 @@ class MainCMD(cmd.Cmd):
              'Type help or ? to list commands.')
     prompt = '> '
 
-    _loaded_track = None
+    _track = None
+    _track_file = None
     _loaded_file = None
 
     def __init__(self, window):
@@ -103,9 +104,12 @@ class MainCMD(cmd.Cmd):
         arg = _parse_args(arg)[0]
 
         try:
-            self._loaded_track = pyglet.resource.media(arg, False)
+            self._track = pyglet.resource.media(arg, False)
         except Exception as e:
             err(str(e))
+            return
+
+        self._track_file = arg
 
     @require_params(0, 1)
     def do_save(self, arg):
@@ -154,6 +158,30 @@ class MainCMD(cmd.Cmd):
             return
 
         self._loaded_file = arg
+
+    def do_show(self, arg):
+        """Show current loaded data (music track and markers).
+
+        If parameters are specified, only marker channels with those
+        names will be shown.
+        """
+        args = _parse_args(arg)
+
+        # Show currently loaded files
+        print(f'Ogg track: {self._track_file}')
+        print(f'Markers file: {self._loaded_file}')
+
+        print('Markers:')
+        # Show markers
+        # All markers if no argument is given
+        if not args:
+            print(self._markers)
+        else:
+            for a in args:
+                if a in self._markers:
+                    print(f'a: {self._markers[a]}')
+                else:
+                    err(f'Could not find marker {a}')
 
     # Autocompletion
     def complete_ogg(self, text, line, start_idx, end_idx):
