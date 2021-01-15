@@ -68,9 +68,18 @@ class MainCMD(cmd.Cmd):
              'Type help or ? to list commands.')
     prompt = '> '
 
-    def __init__(self):
+    def __init__(self, window):
         # Set readline (not available on windows)
         readline.set_completer_delims(' \t\n')
 
+        # Associated window
+        self._window = window
+
         # Init parent
         super().__init__()
+
+    def do_quit(self, arg):
+        """Exit the program."""
+        print('Have a nice day.')
+        self._window.close()
+        return True

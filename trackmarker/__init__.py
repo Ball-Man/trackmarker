@@ -1,4 +1,5 @@
 import pyglet
+import threading
 from . import cli
 
 window = None
@@ -28,4 +29,9 @@ def main():
 
     window.set_handlers(on_draw, on_key_press)
 
+    # Init CLI
+    cmd = cli.MainCMD(window)
+    threading.Thread(target=cmd.cmdloop).start()
+
+    # Init window
     pyglet.app.run()
