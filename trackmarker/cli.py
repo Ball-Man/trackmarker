@@ -138,6 +138,23 @@ class MainCMD(cmd.Cmd):
                 except IOError as e:
                     err(str(e))
 
+    @require_params(1)
+    def do_load(self, arg):
+        """Load from file the current markers.
+
+        This will override the data currently in memory, if any.
+        """
+        arg = _parse_args(arg)[0]
+
+        try:
+            with open(arg) as file:
+                self._markers = json.load(file)
+        except IOError as e:
+            err(str(e))
+            return
+
+        self._loaded_file = arg
+
     # Autocompletion
     def complete_ogg(self, text, line, start_idx, end_idx):
         """Autocompletion for the ogg command."""
