@@ -3,6 +3,8 @@ import glob as gb
 import cmd
 import readline
 
+import pyglet
+
 
 def err(string):
     """Print an error message."""
@@ -30,7 +32,7 @@ def require_params(min_num, max_num=None):
             # Check for argument count
             if not (min_num <= len(args) <= max_num):
                 if min_num == max_num:
-                    err(f'Invalid numer of arguments: required {min_num}'
+                    err(f'Invalid numer of arguments: required {min_num} '
                         f'given {len(args)}')
                 else:
                     err('Invalid number of arguments: required min '
@@ -48,9 +50,11 @@ def require_params(min_num, max_num=None):
 def _complete_path(path):
     """Autocompletion function for paths."""
     if op.isdir(path):
-        return gb.glob(op.join(path, '*'))
+        ret = gb.glob(op.join(path, '*'))
     else:
-        return gb.glob(path + '*')
+        ret = gb.glob(path + '*')
+
+    return tuple(p.replace('\\', '/') for p in ret)
 
 
 def _parse_args(arg):
@@ -68,6 +72,8 @@ class MainCMD(cmd.Cmd):
              'Type help or ? to list commands.')
     prompt = '> '
 
+    _loaded_track = None
+
     def __init__(self, window):
         # Set readline (not available on windows)
         readline.set_completer_delims(' \t\n')
@@ -83,3 +89,19 @@ class MainCMD(cmd.Cmd):
         print('Have a nice day.')
         self._window.close()
         return True
+
+    def do_EOF(self, arg):
+        """Exit the program."""
+        return self.do_quit(arg)
+
+    @require_params(1)
+    def do_ogg(self, arg):
+        """Select the current music track in memory."""
+        arg = _parse_args(arg)[0]
+
+        self._loaded_track = pyglet.resource.media(arg, False)
+
+    # Autocompletion
+    def complete_ogg(self, text, line, start_idx, end_idx):
+        """Autocompletion for the ogg command."""
+        return _complete_path(text)
