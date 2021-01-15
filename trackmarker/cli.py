@@ -179,9 +179,20 @@ class MainCMD(cmd.Cmd):
         else:
             for a in args:
                 if a in self._markers:
-                    print(f'a: {self._markers[a]}')
+                    print(f'{a}: {self._markers[a]}')
                 else:
                     err(f'Could not find marker {a}')
+
+    @require_params(1)
+    def do_add(self, arg):
+        """Add a channel, specifying its name."""
+        arg = _parse_args(arg)[0]
+
+        if arg in self._markers:
+            err(f'Channel {arg} already exists.')
+            return
+
+        self._markers[arg] = []
 
     # Autocompletion
     def complete_ogg(self, text, line, start_idx, end_idx):
