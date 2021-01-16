@@ -104,7 +104,7 @@ class MainCMD(cmd.Cmd):
         arg = _parse_args(arg)[0]
 
         try:
-            self._track = pyglet.resource.media(arg)
+            self._track = pyglet.media.StaticSource(pyglet.media.load(arg))
         except Exception as e:
             err(str(e))
             return
@@ -168,7 +168,8 @@ class MainCMD(cmd.Cmd):
         args = _parse_args(arg)
 
         # Show currently loaded files
-        print(f'Ogg track: {self._track_file}')
+        playing = '(playing)' if self._window.player.playing else ''
+        print(f'Ogg track: {self._track_file} {playing}')
         print(f'Markers file: {self._loaded_file}')
 
         print('Markers:')
@@ -229,8 +230,7 @@ class MainCMD(cmd.Cmd):
                 def play():
                     self._window.channel = self._markers[args[0]]
                     # Track playback
-                    self._window.player.queue(self._track)
-                    self._window.player.play()
+                    self._window.player = self._track.play()
 
                 self._window.action_queue.put((play,))
         else:

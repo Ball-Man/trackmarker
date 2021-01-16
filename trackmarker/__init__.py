@@ -48,15 +48,13 @@ class TrackWindow(pyglet.window.Window):
 
         elif symbol == pyglet.window.key.P:
             if self.player.playing:
-                self.stop_playback()
+                self.player.pause()
             else:
                 self.player.play()
 
     def stop_playback(self):
         """Stop current playback."""
         self.player.pause()
-        self.player.seek(0)
-        self.player = pyglet.media.Player()
 
 
 def main():
