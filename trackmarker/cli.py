@@ -91,7 +91,7 @@ class MainCMD(cmd.Cmd):
     def do_quit(self, arg):
         """Exit the program."""
         print('Have a nice day.')
-        self._window.close()
+        self._window.action_queue.put((self._window.close,))
         return True
 
     def do_EOF(self, arg):
@@ -221,22 +221,22 @@ class MainCMD(cmd.Cmd):
         if args:
             if self._window.player.playing:
                 # Stop playback
-                self._window.player.pause()
-                self._window.player.seek(0)
-                self._window.player = pyglet.media.Player()
+                self._window.action_queue.put((self._window.stop_playback,))
             else:
                 # Set marker channel
                 self.do_add(args[0])
-                self._window.channel = self._markers[args[0]]
-                # Track playback
-                self._window.player.queue(self._track)
-                self._window.player.play()
+
+                def play():
+                    self._window.channel = self._markers[args[0]]
+                    # Track playback
+                    self._window.player.queue(self._track)
+                    self._window.player.play()
+
+                self._window.action_queue.put((play,))
         else:
             if self._window.player.playing:
                 # Stop playback
-                self._window.player.pause()
-                self._window.player.seek(0)
-                self._window.player = pyglet.media.Player()
+                self._window.action_queue.put((self._window.stop_playback,))
             else:
                 err('Specify a channel name to record to.')
 
