@@ -16,6 +16,7 @@ from . import cli
 window = None
 batch = None
 rect = None
+playback_rect = None
 cmd = None
 
 
@@ -27,14 +28,27 @@ class TrackWindow(pyglet.window.Window):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.player = pyglet.media.Player()
 
         # Queue of actions destinated to the main thread
         # (pyglet stuff basically)
         # An action is a triple: function, args, kwargs
         self.action_queue = queue.Queue()
 
+        self._player = pyglet.media.Player()
+        self._marker_index = 0
+
     def on_update(self, dt):
+        if self.player.playing and self.channel is not None \
+           and len(self.channel) > self._marker_index \
+           and self._player.time >= self.channel[self._marker_index]:
+            # Do not overlap
+            if not rect.visible:
+                playback_rect.visible = True
+                pyglet.clock.schedule_once(
+                    lambda dt: setattr(playback_rect, 'visible', False),
+                    0.1)
+            self._marker_index += 1
+
         while self.action_queue.qsize() > 0:
             action = self.action_queue.get()
             action[0](*action[1] if len(action) > 1 else [],
@@ -69,16 +83,31 @@ class TrackWindow(pyglet.window.Window):
         """Stop current playback."""
         self.player.pause()
 
+    @property
+    def player(self):
+        return self._player
+
+    @player.setter
+    def player(self, value):
+        self._marker_index = 0
+        self._player = value
+
 
 def main():
-    global window, batch, rect
-    window = TrackWindow()
+    global window, batch, rect, playback_rect
+    window = TrackWindow(vsync=False)
     batch = pyglet.graphics.Batch()
 
     rect = pyglet.shapes.Rectangle(0, 0, window.width, window.height,
                                    batch=batch,
                                    color=(0xdd, 0xdd, 0xdd))
+
+    playback_rect = pyglet.shapes.Rectangle(0, 0, window.width, window.height,
+                                            batch=batch,
+                                            color=(0x05, 0x05, 0xbb))
+
     rect.visible = False
+    playback_rect.visible = False
 
     # Init CLI
     cmd = cli.MainCMD(window)
