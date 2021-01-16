@@ -16,6 +16,7 @@ from . import cli
 window = None
 batch = None
 rect = None
+cmd = None
 
 
 class TrackWindow(pyglet.window.Window):
@@ -60,6 +61,10 @@ class TrackWindow(pyglet.window.Window):
         if symbol == pyglet.window.key.SPACE:
             rect.visible = False
 
+    def on_close(self):
+        """Terminate the whole program."""
+        pass
+
     def stop_playback(self):
         """Stop current playback."""
         self.player.pause()
@@ -72,7 +77,7 @@ def main():
 
     rect = pyglet.shapes.Rectangle(0, 0, window.width, window.height,
                                    batch=batch,
-                                   color=(0xff, 0xff, 0xff))
+                                   color=(0xdd, 0xdd, 0xdd))
     rect.visible = False
 
     # Init CLI
