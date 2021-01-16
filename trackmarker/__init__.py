@@ -65,11 +65,26 @@ class TrackWindow(pyglet.window.Window):
             bisect.insort(self.channel, self.player.time)
             rect.visible = True
 
+        # Pause/resume
         elif symbol == pyglet.window.key.P:
             if self.player.playing:
                 self.player.pause()
             else:
                 self.player.play()
+
+        # Rollback
+        elif symbol == pyglet.window.key.LEFT:
+            if self.player.playing:
+                self._marker_index = \
+                    bisect.bisect(self.channel, self.player.time - 5)
+                self.player.seek(self.player.time - 5)
+
+        # Fastforward
+        elif symbol == pyglet.window.key.RIGHT:
+            if self.player.playing:
+                self._marker_index = \
+                    bisect.bisect(self.channel, self.player.time + 5)
+                self.player.seek(self.player.time + 5)
 
     def on_key_release(self, symbol, mods):
         if symbol == pyglet.window.key.SPACE:
