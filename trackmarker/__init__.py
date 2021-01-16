@@ -10,10 +10,12 @@ software to map actions to specific moments in the song.
 import pyglet
 import threading
 import queue
+import bisect
 from . import cli
 
 window = None
 batch = None
+rect = None
 
 
 class TrackWindow(pyglet.window.Window):
@@ -38,13 +40,15 @@ class TrackWindow(pyglet.window.Window):
                       **action[2] if len(action) > 2 else {})
 
     def on_draw(self):
+        window.clear()
         batch.draw()
 
     def on_key_press(self, symbol, mods):
         """"""
-        if symbol == pyglet.window.key.SPACE:
+        if symbol == pyglet.window.key.SPACE and self.player.playing:
             # Create a mark
-            self.channel.append(self.player.time)
+            bisect.insort(self.channel, self.player.time)
+            rect.visible = True
 
         elif symbol == pyglet.window.key.P:
             if self.player.playing:
@@ -52,13 +56,17 @@ class TrackWindow(pyglet.window.Window):
             else:
                 self.player.play()
 
+    def on_key_release(self, symbol, mods):
+        if symbol == pyglet.window.key.SPACE:
+            rect.visible = False
+
     def stop_playback(self):
         """Stop current playback."""
         self.player.pause()
 
 
 def main():
-    global window, batch
+    global window, batch, rect
     window = TrackWindow()
     batch = pyglet.graphics.Batch()
 
